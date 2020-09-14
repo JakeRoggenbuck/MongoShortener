@@ -3,15 +3,6 @@ from dataclasses import dataclass
 from datetime import datetime
 
 
-def valid_url(url: str):
-    """Check if the url is actually a correct url"""
-    if url == "":
-        return False
-    if 'http' not in url:
-        url = 'https://' + url
-    return url
-
-
 @dataclass
 class Link:
     """Data class for making url entries"""
@@ -44,6 +35,14 @@ class Database:
         self.db = self.client.url_short
         self.urls = self.db.urls
 
+    def valid_url(self, url: str):
+        """Check if the url is actually a correct url"""
+        if url == "":
+            return False
+        if 'http' not in url:
+            url = 'https://' + url
+        return url
+
     def check_alias(self, alias: str):
         """Return True if the alias exists, else return False"""
         result = self.urls.find_one({"alias": alias})
@@ -71,7 +70,7 @@ class Database:
         # Check if alias exists
         if not self.check_alias(alias):
             # Check if url is valid and complete
-            if (url := valid_url(url)) is not False:
+            if (url := self.valid_url(url)) is not False:
                 # Make link object and get the dictionary of it
                 link = Link(alias, url, 0).get_link_dict()
                 # Insert the url object
